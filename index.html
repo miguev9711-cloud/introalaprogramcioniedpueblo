@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introducción a la Programación y a la Robótica - IED EL PUEBLO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .school-blue { color: #00008B; }
+        .bg-school-blue { background-color: #00008B; }
+        .school-pink { color: #FF1493; }
+        .bg-school-pink { background-color: #FF1493; }
+        .school-yellow { color: #FFD700; }
+        .bg-school-yellow { background-color: #FFD700; }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .option-btn {
+            transition: all 0.2s;
+        }
+        .option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .option-btn.selected-correct {
+            background-color: #4ade80;
+            border-color: #22c55e;
+            color: #064e3b;
+        }
+        .option-btn.selected-wrong {
+            background-color: #f87171;
+            border-color: #ef4444;
+            color: #7f1d1d;
+        }
+
+        .level-badge {
+            transition: all 0.3s;
+        }
+        .level-badge.active {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .level-badge.completed {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+        }
+        .level-badge.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .level-badge.failed {
+            background: linear-gradient(135deg, #f87171, #ef4444);
+            color: white;
+            opacity: 0.9;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            animation: fall linear forwards;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-school-blue text-white shadow-lg relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between relative z-10">
+            <div class="flex items-center space-x-4">
+                <img src="https://image.qwenlm.ai/public_source/70e6afc5-c537-4952-ba1f-b83ad1b93e46/190e0d5de-0050-47aa-82cc-239d6e51b630.png" alt="Logo IED El Pueblo" class="h-20 w-20 object-contain bg-white rounded-full p-1 shadow-md">
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold tracking-wide">Introducción a la Programación y a la Robótica</h1>
+                    <p class="text-sm md:text-base opacity-90">IED EL PUEBLO</p>
+                </div>
+            </div>
+            <div class="hidden md:block text-right">
+                <div class="text-xs uppercase tracking-wider opacity-75">Progreso Total</div>
+                <div class="w-32 h-2 bg-blue-900 rounded-full mt-1 overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-school-pink transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Level Selector -->
+    <div class="bg-white shadow-md py-4">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center space-x-2 md:space-x-4 overflow-x-auto pb-2">
+                <button onclick="selectLevel(0)" id="level-0" class="level-badge active flex flex-col items-center px-4 md:px-6 py-3 rounded-xl bg-school-blue text-white min-w-[90px]">
+                    <span class="text-2xl">🎓</span>
+                    <span class="text-xs md:text-sm font-bold mt-1">Nivel 1</span>
+                    <span class="text-xs opacity-75">Fundamentos</span>
+                </button>
+                <button onclick="selectLevel(1)" id="level-1" class="level-badge locked flex flex-col items-center px-4 md:px-6 py-3 rounded-xl bg-gray-300 text-gray-600 min-w-[90px]">
+                    <span class="text-2xl">🚀</span>
+                    <span class="text-xs md:text-sm font-bold mt-1">Nivel 2</span>
+                    <span class="text-xs opacity-75">Lenguajes</span>
+                </button>
+                <button onclick="selectLevel(2)" id="level-2" class="level-badge locked flex flex-col items-center px-4 md:px-6 py-3 rounded-xl bg-gray-300 text-gray-600 min-w-[90px]">
+                    <span class="text-2xl">🏆</span>
+                    <span class="text-xs md:text-sm font-bold mt-1">Nivel 3</span>
+                    <span class="text-xs opacity-75">Avanzado</span>
+                </button>
+                <button onclick="selectLevel(3)" id="level-3" class="level-badge locked flex flex-col items-center px-4 md:px-6 py-3 rounded-xl bg-gray-300 text-gray-600 min-w-[90px]">
+                    <span class="text-2xl">🤖</span>
+                    <span class="text-xs md:text-sm font-bold mt-1">Nivel 4</span>
+                    <span class="text-xs opacity-75">Robótica</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 flex flex-col items-center justify-center">
+        
+        <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl overflow-hidden fade-in" id="app-container">
+            <!-- Banner Image inside card -->
+            <div class="h-48 w-full bg-cover bg-center" id="lesson-banner" style="background-image: url('https://image.qwenlm.ai/public_source/70e6afc5-c537-4952-ba1f-b83ad1b93e46/1ef88dbd0-9d35-4605-8dc7-13ddbdafd2e2.png');"></div>
+            
+            <div class="p-6 md:p-8">
+                <!-- Lesson Content Section -->
+                <div id="lesson-view">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="inline-block px-3 py-1 bg-blue-100 text-school-blue text-xs font-bold rounded-full" id="lesson-tag">TEMA 1</span>
+                        <span class="text-xs text-gray-500" id="lesson-counter">1 de 4</span>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6" id="lesson-title">Cargando...</h2>
+                    <div class="prose prose-blue text-gray-600 text-lg leading-relaxed mb-8" id="lesson-text"></div>
+                    <button onclick="startQuiz()" id="start-quiz-btn" class="w-full bg-school-blue hover:bg-blue-900 text-white font-bold py-3 px-6 rounded-lg transition duration-300 flex items-center justify-center space-x-2">
+                        <span>¡Entendido! Ir a la pregunta</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Quiz Section (Hidden initially) -->
+                <div id="quiz-view" class="hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-xl font-bold text-gray-800">Pregunta de comprensión:</h3>
+                        <span class="text-sm text-gray-500" id="question-number">Pregunta 1</span>
+                    </div>
+                    <p class="text-lg text-gray-700 mb-6 font-medium" id="question-text">...</p>
+                    
+                    <div class="space-y-3" id="options-container">
+                        <!-- Options injected via JS -->
+                    </div>
+                </div>
+
+                <!-- Feedback Section (Hidden initially) -->
+                <div id="feedback-view" class="hidden text-center py-4">
+                    <div id="feedback-icon" class="text-6xl mb-4"></div>
+                    <h3 id="feedback-title" class="text-2xl font-bold mb-2"></h3>
+                    <p id="feedback-message" class="text-gray-600 mb-6"></p>
+                    <button onclick="nextLesson()" class="bg-school-pink hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105">
+                        Siguiente Lección
+                    </button>
+                </div>
+
+                <!-- Level Complete / Result Section (Dynamic) -->
+                <div id="level-complete-view" class="hidden text-center py-8">
+                    <div id="level-result-icon" class="text-7xl mb-4">🎉</div>
+                    <h2 id="level-result-title" class="text-3xl font-bold mb-4">¡Nivel Completado!</h2>
+                    <p id="level-result-message" class="text-gray-600 mb-6"></p>
+                    <div id="level-actions" class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button id="retry-level-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition transform hover:scale-105">
+                            🔄 Reintentar Nivel
+                        </button>
+                        <button id="next-level-btn" class="bg-school-blue hover:bg-blue-900 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105">
+                            Ir al Siguiente Nivel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Course Complete Section -->
+                <div id="course-complete-view" class="hidden text-center py-8">
+                    <div class="text-7xl mb-4">🏆</div>
+                    <h2 class="text-3xl font-bold text-school-blue mb-4">¡Felicidades!</h2>
+                    <p class="text-gray-600 mb-6">Has completado todos los niveles del curso de introducción a la programación y robótica.</p>
+                    <div class="bg-yellow-100 border-2 border-school-yellow rounded-lg p-4 mb-6">
+                        <p class="font-bold text-school-blue">Certificado de Completación</p>
+                        <p class="text-sm">IED EL PUEBLO - 2026</p>
+                    </div>
+                    <button onclick="restartCourse()" class="bg-school-pink hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105">
+                        Volver a Empezar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Progress -->
+        <div class="md:hidden w-full max-w-2xl mt-4">
+            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                <span>Progreso del curso</span>
+                <span id="progress-text">0%</span>
+            </div>
+            <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div id="progress-bar-mobile" class="h-full bg-school-blue transition-all duration-500" style="width: 0%"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-gray-800 text-gray-400 py-6 text-center text-sm">
+        <p>&copy; 2026 IED EL PUEBLO - Iniciativa de Programación y Robótica Estudiantil</p>
+        <p class="mt-1 text-xs">Libertad • Sabiduría • Respeto</p>
+    </footer>
+
+    <script>
+        // ----------------------------- DATA: NIVEL 4 ROBÓTICA + NIVELES EXISTENTES -----------------------------
+        const allLevels = [
+            { name: "Fundamentos", icon: "🎓", banner: "https://image.qwenlm.ai/public_source/70e6afc5-c537-4952-ba1f-b83ad1b93e46/1ef88dbd0-9d35-4605-8dc7-13ddbdafd2e2.png",
+              lessons: [ /* NIVEL 1 original */ 
+                { id:1, title:"¿Qué es un Algoritmo?", tag:"CONCEPTO BÁSICO", text:`<p class="mb-4">Imagina que quieres hacer un sándwich... Necesitas seguir pasos: 1. Tomar el pan, 2. Poner el jamón, 3. Poner el queso, 4. Cerrar.</p><p>En programación, un <strong>algoritmo</strong> es una secuencia ordenada de pasos para resolver un problema.</p>`, question:"¿Cuál es la mejor definición de un algoritmo?", options:["Un tipo de virus informático.","Una secuencia ordenada de pasos para resolver un problema.","La parte física de la computadora.","Un lenguaje de robots."], correct:1, explanationCorrect:"¡Exacto! Un algoritmo es como una receta paso a paso.", explanationIncorrect:"No es correcto. Un algoritmo es una serie de pasos lógicos." },
+                { id:2, title:"Las Variables: Cajas de Memoria", tag:"ALMACENAMIENTO", text:`<p class="mb-4">Imagina cajas con etiquetas... En programación, una <strong>variable</strong> guarda información.</p>`, question:"¿Para qué sirve principalmente una variable?", options:["Borrar archivos.","Acelerar internet.","Almacenar datos con un nombre.","Dibujar gráficos."], correct:2, explanationCorrect:"¡Correcto! Guardan valores.", explanationIncorrect:"No, las variables almacenan información." },
+                { id:3, title:"Bucles (Loops): Repetición", tag:"AUTOMATIZACIÓN", text:`<p>Un <strong>Bucle</strong> repite acciones mientras se cumpla una condición.</p>`, question:"¿Qué hace un bucle (loop)?", options:["Detiene el programa.","Repite un bloque de código.","Cambia color pantalla.","Conecta Wi-Fi."], correct:1, explanationCorrect:"¡Muy bien! Automatizan tareas repetitivas.", explanationIncorrect:"Un bucle sirve para repetir código." },
+                { id:4, title:"Condicionales: Decisiones", tag:"LÓGICA", text:`<p>Condicionales (If) verifican si algo es verdadero/falso.</p>`, question:"¿Cuándo usamos una estructura condicional (If)?", options:["Para ejecutar más rápido.","Para tomar decisiones basadas en condición.","Para apagar PC.","Para guardar archivo."], correct:1, explanationCorrect:"¡Excelente! Permiten reaccionar según situación.", explanationIncorrect:"Los condicionales son para decisiones lógicas." }
+              ] },
+            { name: "Lenguajes de Programación", icon: "🚀", banner: "https://image.qwenlm.ai/public_source/70e6afc5-c537-4952-ba1f-b83ad1b93e46/f3b8a9c2-1d4e-4f5a-9b3c-7e8d9f0a1b2c.png",
+              lessons: [ /* NIVEL 2 resumido para mantener extensión pero conservando contenido clave */
+                { id:1, title:"¿Qué es un Lenguaje de Programación?", tag:"INTRO", text:`<p>Un <strong>lenguaje de programación</strong> permite dar instrucciones a la computadora.</p>`, question:"¿Para qué sirve un lenguaje de programación?", options:["Decorar pantalla.","Comunicarnos y dar instrucciones.","Ahorrar energía.","Proteger de virus."], correct:1, explanationCorrect:"Correcto: puente humano-máquina.", explanationIncorrect:"Es para comunicar órdenes." },
+                { id:2, title:"Python: El Amigable", tag:"POPULAR", text:`<p>Python es fácil de leer, usado en IA, NASA.</p><div class='bg-gray-800 text-green-400 p-2 rounded'>print("Hola")</div>`, question:"¿Por qué Python es recomendado para principiantes?", options:["Es el más antiguo.","Sintaxis clara y legible.","Solo funciona en caras.","No requiere código."], correct:1, explanationCorrect:"Su sintaxis es sencilla.", explanationIncorrect:"Es por su claridad." },
+                { id:3, title:"JavaScript: Rey de la Web", tag:"WEB", text:`<p>JavaScript hace páginas interactivas: animaciones, formularios.</p>`, question:"¿Principal función de JavaScript?", options:["Crear bases de datos.","Hacer páginas web interactivas.","Diseñar hardware.","Proteger hackers."], correct:1, explanationCorrect:"Interactividad en navegador.", explanationIncorrect:"Es para interacción web." },
+                { id:4, title:"Java: Empresarial", tag:"APPS", text:`<p>Java: "Write Once, Run Anywhere". Usado en Android y bancos.</p>`, question:"¿Qué significa 'Write Once, Run Anywhere'?", options:["Solo una línea.","Funciona en diferentes sistemas sin cambios.","Solo funciona una vez.","Escribir muchas veces."], correct:1, explanationCorrect:"Portabilidad total.", explanationIncorrect:"Se refiere a portabilidad." },
+                { id:5, title:"HTML y CSS", tag:"WEB", text:`<p>HTML estructura, CSS estilo. Esqueleto y ropa de la web.</p>`, question:"Diferencia entre HTML y CSS:", options:["HTML estilo, CSS estructura.","HTML estructura, CSS estilo.","Son lo mismo.","HTML juegos, CSS texto."], correct:1, explanationCorrect:"HTML contenido, CSS presentación.", explanationIncorrect:"Al revés: HTML estructura, CSS estilo." },
+                { id:6, title:"C++ y C#: Potencia", tag:"RENDIMIENTO", text:`<p>C++ rápido para videojuegos; C# para Unity y Windows.</p>`, question:"¿Para qué se usa principalmente C++?", options:["Documentos de texto.","Alto rendimiento (videojuegos).","Páginas simples.","Correos."], correct:1, explanationCorrect:"C++ es potente y rápido.", explanationIncorrect:"Se usa en aplicaciones demandantes." }
+              ] },
+            { name: "Avanzado", icon: "🏆", banner: "https://image.qwenlm.ai/public_source/70e6afc5-c537-4952-ba1f-b83ad1b93e46/a1b2c3d4-5e6f-7g8h-9i0j-k1l2m3n4o5p6.png",
+              lessons: [
+                { id:1, title:"¿Qué es una Función?", tag:"CONCEPTO", text:`<p>Función: bloque reutilizable. Organiza código.</p>`, question:"Principal ventaja de funciones:", options:["Hacen más lento.","Reutilizar y organizar código.","Ocupan más memoria.","Solo decoran."], correct:1, explanationCorrect:"Organizan y reutilizan.", explanationIncorrect:"Mejoran organización." },
+                { id:2, title:"Arrays: Listas", tag:"DATOS", text:`<p>Array almacena múltiples valores en una variable.</p><div class='bg-gray-800 text-green-400 p-2 rounded'>let estudiantes = ["Ana","Carlos"];</div>`, question:"¿Qué es un array?", options:["Virus.","Estructura con múltiples valores.","Comando borrar.","Función matemática."], correct:1, explanationCorrect:"Lista de datos.", explanationIncorrect:"Es una colección." },
+                { id:3, title:"Depuración (Debugging)", tag:"ERRORES", text:`<p>Depurar = encontrar y corregir errores (bugs).</p>`, question:"¿Qué es la depuración?", options:["Eliminar archivos.","Encontrar y corregir errores.","Instalar antivirus.","Copias de seguridad."], correct:1, explanationCorrect:"Corregir errores.", explanationIncorrect:"Es proceso de corrección." },
+                { id:4, title:"IA y Programación", tag:"FUTURO", text:`<p>Inteligencia Artificial con Python, asistentes, recomendaciones.</p>`, question:"Lenguaje más popular para IA:", options:["HTML","Python","CSS","SQL"], correct:1, explanationCorrect:"Python domina IA con TensorFlow.", explanationIncorrect:"Python es líder en IA." }
+              ] },
+            // ----- NIVEL 4: INTRODUCCIÓN A LA ROBÓTICA (para 10° y 11°) -----
+            { name: "Robótica", icon: "🤖", banner: "https://image.qwenlm.ai/public_source/70e6afc5-c537-4952-ba1f-b83ad1b93e46/robot-banner.png",
+              lessons: [
+                { id:1, title:"¿Qué es la Robótica?", tag:"INTRO ROBOTICS", text:`<p class="mb-4">La <strong>robótica</strong> es una rama interdisciplinaria que combina ingeniería, electrónica, mecánica y programación para diseñar, construir y operar robots. Un robot es una máquina programable capaz de interactuar con su entorno.</p><p class="mb-4">Los robots pueden ser industriales (brazos en fábricas), domésticos (aspiradoras) o educativos (como los kits de Arduino). La robótica busca automatizar tareas y resolver problemas del mundo real.</p><p><strong>Décimo y Undécimo:</strong> Este nivel te prepara para entender los fundamentos de la automatización y la programación de hardware.</p>`, question:"¿Qué es la robótica?", options:["Solo construir robots de juguete.","Ciencia que integra programación, electrónica y mecánica para crear máquinas inteligentes.","Estudio de los robots en películas.","Diseño de videojuegos."], correct:1, explanationCorrect:"¡Correcto! La robótica une varias disciplinas para crear sistemas automatizados.", explanationIncorrect:"La robótica va más allá del entretenimiento: integra hardware y software para soluciones reales." },
+                { id:2, title:"Componentes de un Robot", tag:"HARDWARE", text:`<p class="mb-4">Un robot típico tiene tres componentes esenciales:</p><ul class="list-disc list-inside mb-4"><li><strong>Sensores</strong>: captan información del entorno (luz, distancia, temperatura).</li><li><strong>Actuadores</strong>: generan movimiento (motores, servos).</li><li><strong>Controlador</strong>: el cerebro (microcontrolador) que ejecuta el programa.</li></ul><p>Ejemplo: Un robot seguidor de línea usa sensores infrarrojos para detectar la línea, un Arduino procesa los datos y envía señales a los motores para girar.</p>`, question:"¿Cuál es la función de los actuadores en un robot?", options:["Captar información del entorno.","Procesar datos y tomar decisiones.","Generar movimiento o acción mecánica.","Almacenar energía."], correct:2, explanationCorrect:"¡Así es! Los actuadores son los músculos del robot: motores, servos, etc.", explanationIncorrect:"Los actuadores son los elementos que producen movimiento; los sensores captan información." },
+                { id:3, title:"Microcontroladores: Arduino", tag:"PROGRAMACIÓN", text:`<p class="mb-4">Un <strong>microcontrolador</strong> es un pequeño ordenador en un chip que puede leer entradas (sensores) y controlar salidas (actuadores). <strong>Arduino</strong> es la plataforma más popular para educación robótica por su facilidad de uso.</p><div class="bg-gray-800 text-green-400 p-3 rounded font-mono text-sm mb-4">void setup() { pinMode(13, OUTPUT); }<br>void loop() { digitalWrite(13, HIGH); delay(1000); digitalWrite(13, LOW); delay(1000); }</div><p>Este código enciende y apaga un LED cada segundo. La programación de robots se basa en estructuras como condicionales y bucles.</p>`, question:"¿Qué función cumple un microcontrolador en un robot?", options:["Fuente de energía principal.","Procesa las entradas de sensores y ejecuta órdenes en actuadores según el programa.","Sujeta las piezas mecánicas.","Solo sirve para almacenar datos."], correct:1, explanationCorrect:"Excelente: el microcontrolador es el cerebro que ejecuta la lógica de control.", explanationIncorrect:"El microcontrolador procesa información y toma decisiones." },
+                { id:4, title:"Sensores en Robótica", tag:"PERCEPCIÓN", text:`<p class="mb-4">Los <strong>sensores</strong> permiten que un robot perciba su entorno. Tipos comunes:</p><ul class="list-disc list-inside mb-4"><li><strong>Sensor ultrasónico</strong>: mide distancia mediante ondas de sonido.</li><li><strong>Sensor infrarrojo (IR)</strong>: detecta objetos o líneas.</li><li><strong>Sensor de luz (LDR)</strong>: mide intensidad lumínica.</li><li><strong>Sensor de temperatura</strong>: monitorea el calor.</li></ul><p>Ejemplo: Un robot evita obstáculos usando un sensor ultrasónico que lee la distancia y ordena girar si hay algo cerca.</p>`, question:"¿Qué tipo de sensor usarías para que un robot evite caerse por una escalera?", options:["Sensor de temperatura","Sensor ultrasónico de distancia","Sensor de luz","Sensor de humedad"], correct:1, explanationCorrect:"¡Correcto! El sensor ultrasónico mide distancias y detectaría el vacío o el escalón.", explanationIncorrect:"Para medir distancia y evitar caídas, el sensor ultrasónico o infrarrojo de distancia es el adecuado." },
+                { id:5, title:"Actuadores y Motores", tag:"MOVIMIENTO", text:`<p class="mb-4">Los <strong>actuadores</strong> transforman energía en movimiento. Los más comunes en robótica educativa son:</p><ul class="list-disc list-inside mb-4"><li><strong>Motores DC</strong>: movimiento continuo para ruedas.</li><li><strong>Servomotores</strong>: control de posición precisa (ángulos).</li><li><strong>Motores paso a paso</strong>: movimientos exactos y controlados.</li></ul><p>La programación de un robot móvil implica controlar la velocidad y dirección de los motores para seguir rutas o esquivar obstáculos.</p><p><strong>Reto:</strong> En robótica con Arduino, se usa la librería Servo.h para controlar servomotores fácilmente.</p>`, question:"¿Cuál es la diferencia principal entre un motor DC y un servomotor?", options:["El DC solo gira en una dirección, el servo en ambas.","El DC da movimiento continuo; el servo permite controlar ángulos precisos.","El servo consume más batería.","No hay diferencia."], correct:1, explanationCorrect:"¡Muy bien! Los servomotores se usan para posiciones específicas (brazos), los DC para movimiento continuo.", explanationIncorrect:"Los servos se usan para posiciones angulares precisas; los DC para rotación continua." }
+              ] }
+        ];
+
+        // ----------------------------- STATE MANAGEMENT -----------------------------
+        let currentLevelIndex = 0;
+        let currentLessonIndex = 0;
+        let isQuizActive = false;
+        let unlockedLevels = [0];       // niveles desbloqueados (por aprobación)
+        let levelPassed = [false, false, false, false];   // si el nivel fue aprobado
+        let levelCorrectCount = [0, 0, 0, 0];   // aciertos por nivel (se reinicia al reintentar)
+        
+        // DOM Elements
+        const lessonView = document.getElementById('lesson-view');
+        const quizView = document.getElementById('quiz-view');
+        const feedbackView = document.getElementById('feedback-view');
+        const levelCompleteView = document.getElementById('level-complete-view');
+        const courseCompleteView = document.getElementById('course-complete-view');
+        const lessonTag = document.getElementById('lesson-tag');
+        const lessonTitle = document.getElementById('lesson-title');
+        const lessonText = document.getElementById('lesson-text');
+        const lessonCounter = document.getElementById('lesson-counter');
+        const lessonBanner = document.getElementById('lesson-banner');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackIcon = document.getElementById('feedback-icon');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const progressBar = document.getElementById('progress-bar');
+        const progressBarMobile = document.getElementById('progress-bar-mobile');
+        const progressText = document.getElementById('progress-text');
+        const questionNumberSpan = document.getElementById('question-number');
+        const retryLevelBtn = document.getElementById('retry-level-btn');
+        const nextLevelBtnLevel = document.getElementById('next-level-btn');
+        
+        // helpers
+        function getCurrentLesson() { return allLevels[currentLevelIndex].lessons[currentLessonIndex]; }
+        function getLevelTotalLessons(idx) { return allLevels[idx].lessons.length; }
+        
+        function updateProgress() {
+            let totalCompletedLessons = 0;
+            let totalLessonsAll = 0;
+            for(let i=0; i<allLevels.length; i++) {
+                totalLessonsAll += allLevels[i].lessons.length;
+                if(levelPassed[i]) totalCompletedLessons += allLevels[i].lessons.length;
+                else if(i === currentLevelIndex && !levelPassed[i]) {
+                    totalCompletedLessons += currentLessonIndex;
+                }
+            }
+            let percentage = totalLessonsAll > 0 ? (totalCompletedLessons / totalLessonsAll) * 100 : 0;
+            progressBar.style.width = `${percentage}%`;
+            progressBarMobile.style.width = `${percentage}%`;
+            progressText.innerText = `${Math.round(percentage)}%`;
+        }
+        
+        function updateLevelBadges() {
+            for(let i=0; i<allLevels.length; i++) {
+                const badge = document.getElementById(`level-${i}`);
+                if(!badge) continue;
+                badge.classList.remove('active', 'locked', 'completed', 'failed');
+                if(levelPassed[i]) {
+                    badge.classList.add('completed');
+                    badge.innerHTML = `<span class="text-2xl">✅</span><span class="text-xs md:text-sm font-bold mt-1">Nivel ${i+1}</span><span class="text-xs opacity-75">${allLevels[i].name}</span>`;
+                } else if(i === currentLevelIndex && !levelPassed[i]) {
+                    badge.classList.add('active');
+                    badge.innerHTML = `<span class="text-2xl">${allLevels[i].icon}</span><span class="text-xs md:text-sm font-bold mt-1">Nivel ${i+1}</span><span class="text-xs opacity-75">${allLevels[i].name}</span>`;
+                } else if(unlockedLevels.includes(i)) {
+                    badge.classList.remove('locked');
+                    badge.classList.add('bg-school-yellow', 'text-gray-800');
+                    badge.innerHTML = `<span class="text-2xl">🔓</span><span class="text-xs md:text-sm font-bold mt-1">Nivel ${i+1}</span><span class="text-xs opacity-75">${allLevels[i].name}</span>`;
+                } else {
+                    badge.classList.add('locked');
+                    badge.innerHTML = `<span class="text-2xl">🔒</span><span class="text-xs md:text-sm font-bold mt-1">Nivel ${i+1}</span><span class="text-xs opacity-75">${allLevels[i].name}</span>`;
+                }
+            }
+        }
+        
+        function selectLevel(levelIndex) {
+            if(!unlockedLevels.includes(levelIndex) && !levelPassed[levelIndex]) {
+                alert("⚠️ Debes completar y aprobar el nivel anterior primero.");
+                return;
+            }
+            currentLevelIndex = levelIndex;
+            if(!levelPassed[levelIndex]) {
+                // si no está aprobado, cargamos progreso actual (se mantiene correctCount y lessonIndex)
+                // pero si es la primera vez que ingresamos al nivel (correctCount 0 y no hay lecciones respondidas)
+                if(currentLessonIndex === 0 && levelCorrectCount[levelIndex] === 0) {
+                    // fresh start
+                }
+            } else {
+                // nivel aprobado, solo mostramos lecciones pero no permitimos cambiar estado (quiz deshabilitado)
+            }
+            renderLesson();
+            updateLevelBadges();
+        }
+        
+        function renderLesson() {
+            const lesson = getCurrentLesson();
+            const level = allLevels[currentLevelIndex];
+            lessonView.classList.remove('hidden');
+            quizView.classList.add('hidden');
+            feedbackView.classList.add('hidden');
+            levelCompleteView.classList.add('hidden');
+            courseCompleteView.classList.add('hidden');
+            isQuizActive = false;
+            lessonBanner.style.backgroundImage = `url('${level.banner}')`;
+            lessonTag.innerText = lesson.tag;
+            lessonTitle.innerText = lesson.title;
+            lessonText.innerHTML = lesson.text;
+            lessonCounter.innerText = `${currentLessonIndex+1} de ${level.lessons.length}`;
+            const startBtn = document.getElementById('start-quiz-btn');
+            if(levelPassed[currentLevelIndex]) {
+                startBtn.disabled = true;
+                startBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                startBtn.innerHTML = `<span>✅ Nivel Aprobado (revisa contenido)</span>`;
+            } else {
+                startBtn.disabled = false;
+                startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                startBtn.innerHTML = `<span>¡Entendido! Ir a la pregunta</span><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>`;
+            }
+            updateProgress();
+            updateLevelBadges();
+        }
+        
+        function startQuiz() {
+            if(levelPassed[currentLevelIndex]) {
+                alert("Este nivel ya fue aprobado. ¡Felicidades! Puedes revisar el contenido, pero el cuestionario está completado.");
+                return;
+            }
+            const lesson = getCurrentLesson();
+            lessonView.classList.add('hidden');
+            quizView.classList.remove('hidden');
+            isQuizActive = true;
+            questionNumberSpan.innerText = `Pregunta ${currentLessonIndex+1} de ${allLevels[currentLevelIndex].lessons.length}`;
+            questionText.innerText = lesson.question;
+            optionsContainer.innerHTML = '';
+            const letters = ['A', 'B', 'C', 'D'];
+            lesson.options.forEach((option, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-school-blue hover:bg-blue-50 text-gray-700 font-medium";
+                btn.innerHTML = `<span class="font-bold mr-2">${letters[idx]}.</span> ${option}`;
+                btn.onclick = () => checkAnswer(idx, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+        
+        function checkAnswer(selectedIndex, btnElement) {
+            if(!isQuizActive) return;
+            if(levelPassed[currentLevelIndex]) return;
+            isQuizActive = false;
+            const lesson = getCurrentLesson();
+            const isCorrect = selectedIndex === lesson.correct;
+            const allButtons = optionsContainer.querySelectorAll('button');
+            allButtons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if(idx === lesson.correct) btn.classList.add('selected-correct', 'border-green-500');
+                else if(idx === selectedIndex && !isCorrect) btn.classList.add('selected-wrong', 'border-red-500');
+                else btn.classList.add('opacity-50');
+            });
+            if(isCorrect) {
+                levelCorrectCount[currentLevelIndex]++;
+            }
+            setTimeout(() => {
+                quizView.classList.add('hidden');
+                feedbackView.classList.remove('hidden');
+                if(isCorrect) {
+                    feedbackIcon.innerText = "🎉";
+                    feedbackTitle.innerText = "¡Correcto!";
+                    feedbackTitle.className = "text-2xl font-bold mb-2 text-green-600";
+                    feedbackMessage.innerText = lesson.explanationCorrect;
+                    createConfetti();
+                } else {
+                    feedbackIcon.innerText = "📚";
+                    feedbackTitle.innerText = "Respuesta incorrecta";
+                    feedbackTitle.className = "text-2xl font-bold mb-2 text-orange-500";
+                    feedbackMessage.innerText = lesson.explanationIncorrect + " Revisa el contenido para la próxima.";
+                }
+            }, 600);
+        }
+        
+        function evaluateLevelCompletion() {
+            const total = getLevelTotalLessons(currentLevelIndex);
+            const correct = levelCorrectCount[currentLevelIndex];
+            const passThreshold = 0.7;
+            const passed = (correct / total) >= passThreshold;
+            if(passed) {
+                levelPassed[currentLevelIndex] = true;
+                if(!unlockedLevels.includes(currentLevelIndex+1) && currentLevelIndex+1 < allLevels.length) {
+                    unlockedLevels.push(currentLevelIndex+1);
+                }
+                showLevelResult(true, correct, total);
+            } else {
+                showLevelResult(false, correct, total);
+            }
+        }
+        
+        function showLevelResult(success, correct, total) {
+            lessonView.classList.add('hidden');
+            quizView.classList.add('hidden');
+            feedbackView.classList.add('hidden');
+            levelCompleteView.classList.remove('hidden');
+            const iconDiv = document.getElementById('level-result-icon');
+            const titleEl = document.getElementById('level-result-title');
+            const msgEl = document.getElementById('level-result-message');
+            const retryBtn = document.getElementById('retry-level-btn');
+            const nextBtn = document.getElementById('next-level-btn');
+            if(success) {
+                iconDiv.innerHTML = "🏆✨";
+                titleEl.innerText = "¡Nivel Aprobado!";
+                titleEl.className = "text-3xl font-bold text-green-600 mb-4";
+                msgEl.innerHTML = `Has obtenido ${correct} de ${total} respuestas correctas (${Math.round((correct/total)*100)}%). ¡Excelente! Has dominado el nivel.`;
+                retryBtn.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+                nextBtn.onclick = () => {
+                    if(currentLevelIndex+1 < allLevels.length) selectLevel(currentLevelIndex+1);
+                    else { levelCompleteView.classList.add('hidden'); courseCompleteView.classList.remove('hidden'); createConfetti(); }
+                };
+                createConfetti();
+            } else {
+                iconDiv.innerHTML = "😓⚠️";
+                titleEl.innerText = "Nivel No Aprobado";
+                titleEl.className = "text-3xl font-bold text-red-600 mb-4";
+                msgEl.innerHTML = `Obtuviste ${correct} de ${total} respuestas correctas (${Math.round((correct/total)*100)}%). Necesitas al menos un 70% para aprobar. ¡Repasa los conceptos y vuelve a intentarlo!`;
+                retryBtn.classList.remove('hidden');
+                nextBtn.classList.add('hidden');
+                retryBtn.onclick = () => { retryCurrentLevel(); };
+            }
+            updateProgress();
+            updateLevelBadges();
+        }
+        
+        function retryCurrentLevel() {
+            levelCorrectCount[currentLevelIndex] = 0;
+            currentLessonIndex = 0;
+            levelPassed[currentLevelIndex] = false;
+            renderLesson();
+            updateLevelBadges();
+            updateProgress();
+        }
+        
+        function nextLesson() {
+            if(levelPassed[currentLevelIndex]) return;
+            const level = allLevels[currentLevelIndex];
+            currentLessonIndex++;
+            if(currentLessonIndex >= level.lessons.length) {
+                evaluateLevelCompletion();
+            } else {
+                renderLesson();
+            }
+            updateProgress();
+        }
+        
+        function restartCourse() {
+            currentLevelIndex = 0;
+            currentLessonIndex = 0;
+            unlockedLevels = [0];
+            levelPassed = [false, false, false, false];
+            levelCorrectCount = [0, 0, 0, 0];
+            renderLesson();
+            updateLevelBadges();
+            updateProgress();
+        }
+        
+        function createConfetti() {
+            const colors = ['#FF1493', '#FFD700', '#00008B', '#4ade80', '#f87171', '#38bdf8'];
+            for (let i = 0; i < 60; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.width = Math.random() * 8 + 5 + 'px';
+                    confetti.style.height = Math.random() * 8 + 5 + 'px';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 4000);
+                }, i * 40);
+            }
+        }
+        
+        // inicialización
+        renderLesson();
+        updateLevelBadges();
+    </script>
+</body>
+</html>
